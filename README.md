@@ -1,1 +1,6 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+# CHECKLIST
+- [x] Creating basic web
+- [] Connecting Supabase
+- [] Alligning background
+- [] Research on memory saving (LocalStorage)
+- [] make the page beautiful
