@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useState } from 'react';
+import { useState,useEffect  } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Modal from '../component/Modal.js';
+import Cookies  from 'js-cookie';
 
 export default function Home() {
   const supabase = createClient(
@@ -10,23 +11,52 @@ export default function Home() {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0aHNibHJ1a25oamhiZWNiaXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDgwNTEzMjksImV4cCI6MjAyMzYyNzMyOX0.lWjxvTTO5KNxHSoF2Gbopqxcx9KlfM2oa_bBI1PvioM'
   );
 
-  const [name, setName] = useState('');
   const [names, setNames] = useState(['pieter', 'aaron', 'racel', 'emir', 'rehan']);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const addName = () => {
-    setNames([...names, name]);
-    setName('');
-  };
 
   const handleQueueClick = () => {
     setIsModalOpen(!isModalOpen);
   };
+  const handleRemoveCurPlayer = () =>{
+    const newNames = [...names]; // Create a shallow copy of the names array
+    newNames.splice(0, 2); // Remove the first two items
+    setNames(newNames);
+  };
+
   const handleQueue = (newName) => {
     setNames([...names, newName]);
     setIsModalOpen(false);
   };
 
+
+
+  const [actionPerformed, setActionPerformed] = useState(false);
+  useEffect(() => {
+    // Check if the device has already performed the action
+    const deviceAction = Cookies.get('deviceAction');
+    if (deviceAction === 'true') {
+      setActionPerformed(true);
+    }
+  }, []);
+
+  const performAction = () => {
+    // Perform the action if it hasn't been performed already
+    if (!actionPerformed) {
+      // Perform the action here
+
+      // Set a cookie to track that the action has been performed by this device
+      Cookies.set('deviceAction', 'true', { expires: 1 }); // Expires in 1 day
+
+      // Update state to reflect that the action has been performed
+      setActionPerformed(true);
+    } else {
+      alert('Action already performed by this device.');
+    }
+
+
+
+
+  };
   return (
     <div className={styles.container}>
       <Head>
@@ -56,8 +86,16 @@ export default function Home() {
               )))}
           </div>
         </div>
-        <div className="">
+        <div className="mb-2">
           <button type="button" className="btn btn-success" onClick={handleQueueClick}>Queue</button>
+        </div>
+        <div className="">
+          <button type="button" className="btn btn-danger" onClick={handleRemoveCurPlayer}>Delete</button>
+        </div>
+        <div>
+          <button onClick={performAction} disabled={actionPerformed}>
+            Perform Action
+          </button>
         </div>
         <Modal isOpen={isModalOpen} onClose={handleQueueClick} onQueue={handleQueue} />
       </main>
